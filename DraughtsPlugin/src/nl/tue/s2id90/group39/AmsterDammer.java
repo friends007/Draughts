@@ -273,7 +273,7 @@ public class AmsterDammer  extends DraughtsPlayer{
     //calculating the value of the bord
     int calcValue(DraughtsState state){
         int value = 0; //value of the bord
-        int king = 9; //value king piece
+        int king = 3; //value king piece
         int norm = 1; //value normal piece
         boolean noWhite = true; 
         boolean noBlack = true;
