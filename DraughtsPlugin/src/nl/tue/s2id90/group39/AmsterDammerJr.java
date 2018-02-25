@@ -16,7 +16,7 @@ import org10x10.dam.game.Move;
 //       for your player during the tournament
 public class AmsterDammerJr  extends DraughtsPlayer{
     private int bestValue=0;
-    int minSearchDepth = 2;
+    int minSearchDepth = 5;
     int maxDepth;
     int depth;
     int with;
@@ -120,7 +120,7 @@ public class AmsterDammerJr  extends DraughtsPlayer{
      * @return the compute value of this node
      * @throws AIStoppedException thrown whenever the boolean stopped has been set to true.
      */
-     int alphaBetaMin(DraughtsNode node, int alpha, int beta)
+     int alphaBetaMin(DraughtsNode node, int alpha, int beta) //black
             throws AIStoppedException {
         if (stopped) { stopped = false; throw new AIStoppedException(); }
         DraughtsState state = node.getState();
@@ -136,7 +136,7 @@ public class AmsterDammerJr  extends DraughtsPlayer{
         Move bestMove = null;//state.getMoves().get(0);
         while(true){
             //a value that is definitly  way too high could properably be changed with either alpha or beta
-            int bestValue = 10000;
+            int bestValue = beta;
             //a for loop looping through all the possible moves
             for(int i = 0;i<imax;i++){
                 try{
@@ -146,14 +146,16 @@ public class AmsterDammerJr  extends DraughtsPlayer{
                     state.doMove(move);
                     int value = alphaBetaMax(node, alpha, beta, depth, bestValue);
                     state.undoMove(move);
-                    if(value < bestValue){
+                    if(value <= bestValue){
                         //if the current move is better than previous one found set the current move as the best move found
                         bestValue = value;
                         bestMove = move;
                     }
                     //a win is found no need to continue the algorithem nothing can become better
-                    if(bestValue == -10000) //won or lost
+                    if(bestValue == alpha){ //won
+                        node.setBestMove(bestMove);
                         return bestValue;
+                    }
                 }catch(IndexOutOfBoundsException ex){
                 System.err.format(
                     "klote imax = %2d, i = %2d,\n", 
@@ -163,15 +165,16 @@ public class AmsterDammerJr  extends DraughtsPlayer{
             }
             //set the best move found as the new current best move and update the maximum search depth and bestValue found
             node.setBestMove(bestMove);
-            maxDepth++;
-            this.bestValue = bestValue;
-            with = 0;
-//            return(bestValue);
+//            this.bestValue = bestValue;            
+//            maxDepth++;
+//            with = 0;
+
+            return(bestValue);
         }
      }
     
      //see the alphaBetaMin above
-    int alphaBetaMax(DraughtsNode node, int alpha, int beta)
+    int alphaBetaMax(DraughtsNode node, int alpha, int beta) //white
             throws AIStoppedException {
         if (stopped) { stopped = false; throw new AIStoppedException(); }
         DraughtsState state = node.getState();
@@ -179,7 +182,7 @@ public class AmsterDammerJr  extends DraughtsPlayer{
         int imax = state.getMoves().size();
         Move bestMove = null;//state.getMoves().get(0);
         while(true){
-            int bestValue = -10000;
+            int bestValue = alpha;
             for(int i = 0;i<imax;i++){
                 try{
                     depth = 1;
@@ -187,12 +190,14 @@ public class AmsterDammerJr  extends DraughtsPlayer{
                     state.doMove(move);
                     int value = alphaBetaMin(node, alpha, beta, depth, bestValue);
                     state.undoMove(move);
-                    if(value > bestValue){
+                    if(value >= bestValue){
                         bestValue = value;
                         bestMove = move;
                     }
-                    if(bestValue == 10000) //won
+                    if(bestValue == beta){ //won
+                        node.setBestMove(bestMove);
                         return bestValue;
+                    }
                 }catch(IndexOutOfBoundsException ex){
                 System.err.format(
                     "klotezooi imax = %2d, i = %2d,\n", 
@@ -201,15 +206,15 @@ public class AmsterDammerJr  extends DraughtsPlayer{
             }
             }
             node.setBestMove(bestMove);
-            maxDepth++;
-            this.bestValue = bestValue;
-            with = 0;
-//            return(bestValue);
+//            maxDepth++;
+//            this.bestValue = bestValue;
+//            with = 0;
+            return(bestValue);
         }
     }
     
     
-    int alphaBetaMin(DraughtsNode node, int alpha, int beta, int curDepth, int prevValue)
+    int alphaBetaMin(DraughtsNode node, int alpha, int beta, int curDepth, int prevValue) //white
             throws AIStoppedException {
         if (stopped) { stopped = false; throw new AIStoppedException(); }//if the time is over go to AIStoppedExeption
         
@@ -226,7 +231,10 @@ public class AmsterDammerJr  extends DraughtsPlayer{
         //amount of moves that are possible
         int imax = state.getMoves().size();
         //if there are no more possible moves or if the maximum depth has been overwritten return the found value to the previous function
-        if(imax == 0 || curDepth>maxDepth){
+        if(imax == 0){//lost
+            with++;
+            return beta;
+        }else if(curDepth>maxDepth){
             with++;
             return value;
         }
@@ -234,7 +242,7 @@ public class AmsterDammerJr  extends DraughtsPlayer{
         depth = curDepth;
         
         //see the first alphaBetaMin
-        int bestValue = 100000;
+        int bestValue = beta;
         for(int i = 0;i<imax;i++){
             try{
                 Move move = state.getMoves().get(i);
@@ -261,7 +269,7 @@ public class AmsterDammerJr  extends DraughtsPlayer{
      }
     
     //see alphaBetaMin right above this one
-    int alphaBetaMax(DraughtsNode node, int alpha, int beta, int curDepth, int prevValue)
+    int alphaBetaMax(DraughtsNode node, int alpha, int beta, int curDepth, int prevValue) //black
             throws AIStoppedException {
         if (stopped) { stopped = false; throw new AIStoppedException(); }
         
@@ -273,13 +281,17 @@ public class AmsterDammerJr  extends DraughtsPlayer{
         int value = calcValue(state);
         int imax = state.getMoves().size();
         curDepth++;
-//        if(imax == 0 || curDepth>maxDepth){
-//            with++;
-//            return value;
-//        }
+        
+        if(imax == 0){//lost
+            with++;
+            return alpha;
+        }else if(curDepth>maxDepth){
+            with++;
+            return value;
+        }
         depth = curDepth;
         
-        int bestValue = -100000;
+        int bestValue = alpha;
         for(int i = 0;i<imax;i++){
             try{
                 Move move = state.getMoves().get(i);
@@ -337,14 +349,9 @@ public class AmsterDammerJr  extends DraughtsPlayer{
                     break;
             }
         }
-        //if one side won give a ridiculous high value so the program will always chose this
-        if(noWhite)
-            return -10000;
-        else if(noBlack) 
-            return 10000;
-        else
-            //no win or loss so return the value
-            return value;
+        
+        //return the value of the board
+        return value;
     }
     
     /** A method that evaluates the given state. */
