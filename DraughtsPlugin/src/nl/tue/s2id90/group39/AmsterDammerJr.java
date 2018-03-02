@@ -325,8 +325,6 @@ public class AmsterDammerJr  extends DraughtsPlayer{
         int row2 = 20;
         int row3 = 70;
         
-        boolean noWhite = true; 
-        boolean noBlack = true;
         //cycle through all the spaces of the bord
         for(int i = 1;i != 51;i++){
             int piece = state.getPiece(i);
@@ -334,45 +332,16 @@ public class AmsterDammerJr  extends DraughtsPlayer{
                 //if there is a piece add there value to the current value of the bord
                 case DraughtsState.BLACKKING:
                     value -= king;
-                    noBlack = false;//there is a black piece
                     break;
                 case DraughtsState.BLACKPIECE:
                     value -= norm;
-                    noBlack = false;
-                    if(i>21){
+                    
+                    if(i>11 && i<45){//counting points for a row formation
                         int j = ((i-1)/5) % 2; //even or uneven row
-                        if(state.getPiece(i-11) == DraughtsState.BLACKPIECE)
-                            if(state.getPiece(i-5+j) == DraughtsState.BLACKPIECE)
-                                if(state.getPiece(i-16+j) != DraughtsState.BLACKPIECE)
-                                    value -= row3;
-                        else if(state.getPiece(i-5+j) == DraughtsState.BLACKPIECE)
-                            if(state.getPiece(i+6-j) != DraughtsState.BLACKPIECE)
-                                value -= row2;
-                        
-                        
-                        if(state.getPiece(i-9) == DraughtsState.BLACKPIECE)
-                            if(state.getPiece(i-4+j) == DraughtsState.BLACKPIECE)
-                                if(state.getPiece(i-13+j) != DraughtsState.BLACKPIECE)
-                                    value -= row3;
-                        else if(state.getPiece(i-4+j) == DraughtsState.BLACKPIECE)
-                            if(state.getPiece(i+5-j) != DraughtsState.BLACKPIECE)
-                                value -= row2;
-                        
-                    }
-                    break;
-                case DraughtsState.WHITEKING:
-                    value += king;
-                    noWhite = false;//there is a white piece
-                    break;
-                case DraughtsState.WHITEPIECE:
-                    value += norm;
-                    noWhite = false;
-                    if(i<40){
-                        int j = ((i-1)/5) % 2; //even or uneven row
-                        if(state.getPiece(i+11) == DraughtsState.WHITEPIECE){
-                            if(state.getPiece(i+6-j) == DraughtsState.WHITEPIECE){
-                                if(i<35){//row of 4 possible
-                                    if(state.getPiece(i+17-j) != DraughtsState.WHITEPIECE){//not a row of 4
+                        if(state.getPiece(i-11) == DraughtsState.BLACKPIECE){//checks if there is a row of 3 to the left
+                            if(state.getPiece(i-5+j) == DraughtsState.BLACKPIECE){
+                                if(i>16){//it if possible for a row of 4 to form
+                                    if(state.getPiece(i-16+j) != DraughtsState.BLACKPIECE){//it is not a row of 4 (no double counting)
                                         value -= row3;
                                     }
                                 } else {
@@ -380,21 +349,69 @@ public class AmsterDammerJr  extends DraughtsPlayer{
                                 }
                             }
                         }
+                        else if(state.getPiece(i-5+j) == DraughtsState.BLACKPIECE){//checks if there is a row of 2 to the left
+                            if(state.getPiece(i+6-j) != DraughtsState.BLACKPIECE){//it is not a row of 3
+                                value -= row2;
+                            }
+                        }
+                        
+                        if(state.getPiece(i-9) == DraughtsState.BLACKPIECE){//checks if there is a row of 3 to the right
+                            if(state.getPiece(i-4+j) == DraughtsState.BLACKPIECE){
+                                if(i>13){
+                                    if(state.getPiece(i-13+j) != DraughtsState.BLACKPIECE){
+                                        value -= row3;
+                                    }
+                                } else {
+                                    value -= row3;
+                                }
+                            }
+                        }
+                        else if(state.getPiece(i-4+j) == DraughtsState.BLACKPIECE){
+                            if(state.getPiece(i+5-j) != DraughtsState.BLACKPIECE){
+                                value -= row2;
+                            }
+                        }
+                        
+                    }
+                    break;
+                case DraughtsState.WHITEKING:
+                    value += king;
+                    break;
+                case DraughtsState.WHITEPIECE:
+                    value += norm;
+                    
+                    if(i<40 && i>5){//counting points for a row formation
+                        int j = ((i-1)/5) % 2; //even or uneven row
+                        if(state.getPiece(i+11) == DraughtsState.WHITEPIECE){
+                            if(state.getPiece(i+6-j) == DraughtsState.WHITEPIECE){
+                                if(i<34){//row of 4 possible
+                                    if(state.getPiece(i+17-j) != DraughtsState.WHITEPIECE){//not a row of 4
+                                        value += row3;
+                                    }
+                                } else {
+                                    value += row3;
+                                }
+                            }
+                        }
                         else if(state.getPiece(i+6-j) == DraughtsState.WHITEPIECE){
                             if(state.getPiece(i-5+j) != DraughtsState.WHITEPIECE){ //not a row of 3 (piece behind)
-                                value -= row2;
+                                value += row2;
                             }
                         }
                         if(state.getPiece(i+9) == DraughtsState.WHITEPIECE){
                             if(state.getPiece(i+5-j) == DraughtsState.WHITEPIECE){
-                                if(state.getPiece(i+14-j) != DraughtsState.WHITEPIECE){
-                                    value -= row3;
+                                if(i<37){
+                                    if(state.getPiece(i+14-j) != DraughtsState.WHITEPIECE){
+                                        value += row3;
+                                    }
+                                } else {
+                                    value += row3;
                                 }
                             }
                         }
                         else if(state.getPiece(i+5-j) == DraughtsState.WHITEPIECE){
                             if(state.getPiece(i-4+j) != DraughtsState.WHITEPIECE){
-                                value -= row2;
+                                value += row2;
                             }
                         }
                     }
