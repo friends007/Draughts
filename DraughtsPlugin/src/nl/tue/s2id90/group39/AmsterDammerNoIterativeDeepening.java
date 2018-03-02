@@ -14,7 +14,7 @@ import org10x10.dam.game.Move;
  */
 // ToDo: rename this class (and hence this file) to have a distinct name
 //       for your player during the tournament
-public class AmsterDammer  extends DraughtsPlayer{
+public class AmsterDammerNoIterativeDeepening  extends DraughtsPlayer{
     private int bestValue=0;
     int minSearchDepth = 4;
     int maxDepth;
@@ -24,8 +24,8 @@ public class AmsterDammer  extends DraughtsPlayer{
     /** boolean that indicates that the GUI asked the player to stop thinking. */
     private boolean stopped;
 
-    public AmsterDammer(int maxSearchDepth) {
-        super("amsterDammer.png"); // ToDo: replace with your own icon
+    public AmsterDammerNoIterativeDeepening (int maxSearchDepth) {
+        super("amsterDammerJr.png"); // ToDo: replace with your own icon
         //this.maxSearchDepth = maxSearchDepth;
     }
     
@@ -97,9 +97,9 @@ public class AmsterDammer  extends DraughtsPlayer{
             throws AIStoppedException
     {
         if (node.getState().isWhiteToMove()) {
-            return alphaBetaMax(node, alpha + 1, beta - 1);
+            return alphaBetaMax(node, alpha, beta);
         } else  {
-            return alphaBetaMin(node, alpha + 1, beta - 1);
+            return alphaBetaMin(node, alpha, beta);
         }
     }
     
@@ -136,7 +136,7 @@ public class AmsterDammer  extends DraughtsPlayer{
         Move bestMove = null;//state.getMoves().get(0);
         while(true){
             //a value that is definitly  way too high could properably be changed with either alpha or beta
-            int bestValue = beta + 1;
+            int bestValue = beta;
             //a for loop looping through all the possible moves
             for(int i = 0;i<imax;i++){
                 try{
@@ -165,11 +165,11 @@ public class AmsterDammer  extends DraughtsPlayer{
             }
             //set the best move found as the new current best move and update the maximum search depth and bestValue found
             node.setBestMove(bestMove);
-            this.bestValue = bestValue;            
-            maxDepth += 2;//always takes the enemies reaction into acount to prevent stupid moves
-            with = 0;
+//            this.bestValue = bestValue;            
+//            maxDepth += 2;//always takes the enemies reaction into acount to prevent stupid moves
+//            with = 0;
 
-//            return(bestValue);
+            return(bestValue);
         }
      }
     
@@ -182,7 +182,7 @@ public class AmsterDammer  extends DraughtsPlayer{
         int imax = state.getMoves().size();
         Move bestMove = null;//state.getMoves().get(0);
         while(true){
-            int bestValue = alpha - 1;
+            int bestValue = alpha;
             for(int i = 0;i<imax;i++){
                 try{
                     depth = 1;
@@ -206,10 +206,10 @@ public class AmsterDammer  extends DraughtsPlayer{
             }
             }
             node.setBestMove(bestMove);
-            maxDepth += 2;//always takes the enemies reaction into acount to prevent stupid moves
-            this.bestValue = bestValue;
-            with = 0;
-//            return(bestValue);
+//            maxDepth += 2;//always takes the enemies reaction into acount to prevent stupid moves
+//            this.bestValue = bestValue;
+//            with = 0;
+            return(bestValue);
         }
     }
     
@@ -233,7 +233,7 @@ public class AmsterDammer  extends DraughtsPlayer{
         //if there are no more possible moves or if the maximum depth has been overwritten return the found value to the previous function
         if(imax == 0){//lost
             with++;
-            return beta;
+            return beta - 1;
         }else if(curDepth>maxDepth){
             with++;
             return value;
@@ -242,7 +242,7 @@ public class AmsterDammer  extends DraughtsPlayer{
         depth = curDepth;
         
         //see the first alphaBetaMin
-        int bestValue = beta + 1;
+        int bestValue = beta;
         for(int i = 0;i<imax;i++){
             try{
                 Move move = state.getMoves().get(i);
@@ -284,14 +284,14 @@ public class AmsterDammer  extends DraughtsPlayer{
         
         if(imax == 0){//lost
             with++;
-            return alpha;
+            return alpha + 1;
         }else if(curDepth>maxDepth){
             with++;
             return value;
         }
         depth = curDepth;
         
-        int bestValue = alpha - 1;
+        int bestValue = alpha;
         for(int i = 0;i<imax;i++){
             try{
                 Move move = state.getMoves().get(i);

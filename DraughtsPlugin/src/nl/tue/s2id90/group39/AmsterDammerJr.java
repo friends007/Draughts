@@ -16,7 +16,7 @@ import org10x10.dam.game.Move;
 //       for your player during the tournament
 public class AmsterDammerJr  extends DraughtsPlayer{
     private int bestValue=0;
-    int minSearchDepth = 5;
+    int minSearchDepth = 4;
     int maxDepth;
     int depth;
     int with;
@@ -97,9 +97,9 @@ public class AmsterDammerJr  extends DraughtsPlayer{
             throws AIStoppedException
     {
         if (node.getState().isWhiteToMove()) {
-            return alphaBetaMax(node, alpha, beta);
+            return alphaBetaMax(node, alpha + 1, beta - 1);
         } else  {
-            return alphaBetaMin(node, alpha, beta);
+            return alphaBetaMin(node, alpha + 1, beta - 1);
         }
     }
     
@@ -136,7 +136,7 @@ public class AmsterDammerJr  extends DraughtsPlayer{
         Move bestMove = null;//state.getMoves().get(0);
         while(true){
             //a value that is definitly  way too high could properably be changed with either alpha or beta
-            int bestValue = beta;
+            int bestValue = beta + 1;
             //a for loop looping through all the possible moves
             for(int i = 0;i<imax;i++){
                 try{
@@ -146,7 +146,7 @@ public class AmsterDammerJr  extends DraughtsPlayer{
                     state.doMove(move);
                     int value = alphaBetaMax(node, alpha, beta, depth, bestValue);
                     state.undoMove(move);
-                    if(value <= bestValue){
+                    if(value < bestValue){
                         //if the current move is better than previous one found set the current move as the best move found
                         bestValue = value;
                         bestMove = move;
@@ -165,11 +165,11 @@ public class AmsterDammerJr  extends DraughtsPlayer{
             }
             //set the best move found as the new current best move and update the maximum search depth and bestValue found
             node.setBestMove(bestMove);
-//            this.bestValue = bestValue;            
-//            maxDepth++;
-//            with = 0;
+            this.bestValue = bestValue;            
+            maxDepth += 2;//always takes the enemies reaction into acount to prevent stupid moves
+            with = 0;
 
-            return(bestValue);
+//            return(bestValue);
         }
      }
     
@@ -182,7 +182,7 @@ public class AmsterDammerJr  extends DraughtsPlayer{
         int imax = state.getMoves().size();
         Move bestMove = null;//state.getMoves().get(0);
         while(true){
-            int bestValue = alpha;
+            int bestValue = alpha - 1;
             for(int i = 0;i<imax;i++){
                 try{
                     depth = 1;
@@ -190,7 +190,7 @@ public class AmsterDammerJr  extends DraughtsPlayer{
                     state.doMove(move);
                     int value = alphaBetaMin(node, alpha, beta, depth, bestValue);
                     state.undoMove(move);
-                    if(value >= bestValue){
+                    if(value > bestValue){
                         bestValue = value;
                         bestMove = move;
                     }
@@ -206,10 +206,10 @@ public class AmsterDammerJr  extends DraughtsPlayer{
             }
             }
             node.setBestMove(bestMove);
-//            maxDepth++;
-//            this.bestValue = bestValue;
-//            with = 0;
-            return(bestValue);
+            maxDepth += 2;//always takes the enemies reaction into acount to prevent stupid moves
+            this.bestValue = bestValue;
+            with = 0;
+//            return(bestValue);
         }
     }
     
@@ -242,7 +242,7 @@ public class AmsterDammerJr  extends DraughtsPlayer{
         depth = curDepth;
         
         //see the first alphaBetaMin
-        int bestValue = beta;
+        int bestValue = beta + 1;
         for(int i = 0;i<imax;i++){
             try{
                 Move move = state.getMoves().get(i);
@@ -250,11 +250,11 @@ public class AmsterDammerJr  extends DraughtsPlayer{
                 value = alphaBetaMax(node, alpha, beta, curDepth, bestValue);
                 state.undoMove(move);
 
-                if(value <= bestValue){
+                if(value < bestValue){
                     bestValue = value;
                 }
                 //if the bestValue is lower that the best value than the previous funcition this move will never be made so no need to calculate further into the future
-                if(bestValue <= prevValue){
+                if(bestValue < prevValue){
                     with++;
                     return bestValue;
                 }
@@ -291,7 +291,7 @@ public class AmsterDammerJr  extends DraughtsPlayer{
         }
         depth = curDepth;
         
-        int bestValue = alpha;
+        int bestValue = alpha - 1;
         for(int i = 0;i<imax;i++){
             try{
                 Move move = state.getMoves().get(i);
@@ -300,10 +300,10 @@ public class AmsterDammerJr  extends DraughtsPlayer{
                 value = alphaBetaMin(node, alpha, beta, curDepth, bestValue);
                 state.undoMove(move);
 
-                if(value >= bestValue){
+                if(value > bestValue){
                     bestValue = value;
                 }
-                if(bestValue >= prevValue){
+                if(bestValue > prevValue){
                     with++;
                     return bestValue;
                 }
@@ -320,8 +320,11 @@ public class AmsterDammerJr  extends DraughtsPlayer{
     //calculating the value of the bord
     int calcValue(DraughtsState state){
         int value = 0; //value of the bord
-        int king = 3; //value king piece
-        int norm = 1; //value normal piece
+        int king = 300; //value king piece
+        int norm = 100; //value normal piece
+        int row2 = 20;
+        int row3 = 70;
+        
         boolean noWhite = true; 
         boolean noBlack = true;
         //cycle through all the spaces of the bord
@@ -336,6 +339,15 @@ public class AmsterDammerJr  extends DraughtsPlayer{
                 case DraughtsState.BLACKPIECE:
                     value -= norm;
                     noBlack = false;
+                    if(i>21){
+                        int j = ((i-1)/5) % 2; //even or uneven row
+                        if(state.getPiece(i-5+j) == DraughtsState.BLACKPIECE){
+                            value -= row2;
+                            if(state.getPiece(i-11) == DraughtsState.BLACKPIECE){
+                                value -= row3;
+                            }
+                        }
+                    }
                     break;
                 case DraughtsState.WHITEKING:
                     value += king;
@@ -344,6 +356,15 @@ public class AmsterDammerJr  extends DraughtsPlayer{
                 case DraughtsState.WHITEPIECE:
                     value += norm;
                     noWhite = false;
+                    if(i<40){
+                        int j = ((i-1)/5) % 2; //even or uneven row
+                        if(state.getPiece(i+6-j) == DraughtsState.BLACKPIECE){
+                            value += row2;
+                            if(state.getPiece(i+11) == DraughtsState.BLACKPIECE){
+                                value += row3;
+                            }
+                        }
+                    }
                     break;
                 default:
                     break;
