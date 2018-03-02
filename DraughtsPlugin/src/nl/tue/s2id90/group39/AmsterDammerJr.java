@@ -341,12 +341,23 @@ public class AmsterDammerJr  extends DraughtsPlayer{
                     noBlack = false;
                     if(i>21){
                         int j = ((i-1)/5) % 2; //even or uneven row
-                        if(state.getPiece(i-5+j) == DraughtsState.BLACKPIECE){
-                            value -= row2;
-                            if(state.getPiece(i-11) == DraughtsState.BLACKPIECE){
-                                value -= row3;
-                            }
-                        }
+                        if(state.getPiece(i-11) == DraughtsState.BLACKPIECE)
+                            if(state.getPiece(i-5+j) == DraughtsState.BLACKPIECE)
+                                if(state.getPiece(i-16+j) != DraughtsState.BLACKPIECE)
+                                    value -= row3;
+                        else if(state.getPiece(i-5+j) == DraughtsState.BLACKPIECE)
+                            if(state.getPiece(i+6-j) != DraughtsState.BLACKPIECE)
+                                value -= row2;
+                        
+                        
+                        if(state.getPiece(i-9) == DraughtsState.BLACKPIECE)
+                            if(state.getPiece(i-4+j) == DraughtsState.BLACKPIECE)
+                                if(state.getPiece(i-13+j) != DraughtsState.BLACKPIECE)
+                                    value -= row3;
+                        else if(state.getPiece(i-4+j) == DraughtsState.BLACKPIECE)
+                            if(state.getPiece(i+5-j) != DraughtsState.BLACKPIECE)
+                                value -= row2;
+                        
                     }
                     break;
                 case DraughtsState.WHITEKING:
@@ -358,10 +369,32 @@ public class AmsterDammerJr  extends DraughtsPlayer{
                     noWhite = false;
                     if(i<40){
                         int j = ((i-1)/5) % 2; //even or uneven row
-                        if(state.getPiece(i+6-j) == DraughtsState.BLACKPIECE){
-                            value += row2;
-                            if(state.getPiece(i+11) == DraughtsState.BLACKPIECE){
-                                value += row3;
+                        if(state.getPiece(i+11) == DraughtsState.WHITEPIECE){
+                            if(state.getPiece(i+6-j) == DraughtsState.WHITEPIECE){
+                                if(i<35){//row of 4 possible
+                                    if(state.getPiece(i+17-j) != DraughtsState.WHITEPIECE){//not a row of 4
+                                        value -= row3;
+                                    }
+                                } else {
+                                    value -= row3;
+                                }
+                            }
+                        }
+                        else if(state.getPiece(i+6-j) == DraughtsState.WHITEPIECE){
+                            if(state.getPiece(i-5+j) != DraughtsState.WHITEPIECE){ //not a row of 3 (piece behind)
+                                value -= row2;
+                            }
+                        }
+                        if(state.getPiece(i+9) == DraughtsState.WHITEPIECE){
+                            if(state.getPiece(i+5-j) == DraughtsState.WHITEPIECE){
+                                if(state.getPiece(i+14-j) != DraughtsState.WHITEPIECE){
+                                    value -= row3;
+                                }
+                            }
+                        }
+                        else if(state.getPiece(i+5-j) == DraughtsState.WHITEPIECE){
+                            if(state.getPiece(i-4+j) != DraughtsState.WHITEPIECE){
+                                value -= row2;
                             }
                         }
                     }
