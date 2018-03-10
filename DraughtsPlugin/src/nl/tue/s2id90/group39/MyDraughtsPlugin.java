@@ -1,11 +1,17 @@
 package nl.tue.s2id90.group39;
 
-import nl.tue.s2id90.group39.samples.UninformedPlayer;
-import nl.tue.s2id90.group39.samples.OptimisticPlayer;
-import nl.tue.s2id90.group39.samples.BuggyPlayer;
+import nl.tue.s2id90.samples.RotterDammerJr;
+import nl.tue.s2id90.samples.UninformedPlayer;
+import nl.tue.s2id90.samples.OptimisticPlayer;
+import nl.tue.s2id90.samples.BuggyPlayer;
 import net.xeoh.plugins.base.annotations.PluginImplementation;
 import nl.tue.s2id90.draughts.DraughtsPlayerProvider;
 import nl.tue.s2id90.draughts.DraughtsPlugin;
+import nl.tue.s2id90.samples.AmsterDammerNoIterativeDeepening;
+import nl.tue.s2id90.samples.RotterDammerJr_backup2;
+import nl.tue.s2id90.samples.RotterDammer_backup1;
+import nl.tue.s2id90.samples.RotterDammer_backup3;
+import nl.tue.s2id90.samples.RotterDammer_checkRow_bugged;
 
 
 
@@ -20,11 +26,14 @@ public class MyDraughtsPlugin extends DraughtsPlayerProvider implements Draughts
         // During the final competition you should make only your 
         // best player available. For testing it might be handy
         // to make more than one player available.
-        super(new AmsterDammer(5),
-                new AmsterDammerJr(5),
-                new UninformedPlayer(),
-                new OptimisticPlayer(),
-                new BuggyPlayer()
+        super(new RotterDammer(5),
+                new RotterDammer(5),
+                new AmsterDammerNoIterativeDeepening(5),
+                new RotterDammerJr(5),
+                new RotterDammerJr_backup2(5),
+                new RotterDammer_backup1(5),
+                new RotterDammer_backup3(5),
+                new RotterDammer_checkRow_bugged(5)
         );
     }
 }
